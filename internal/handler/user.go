@@ -4,10 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/middleware"
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/model"
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/service"
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/pkg"
+	"final_project/internal/middleware"
+	"final_project/internal/model"
+	"final_project/internal/service"
+	"final_project/pkg"
+
 	"github.com/gin-gonic/gin"
 )
 

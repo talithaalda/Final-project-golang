@@ -3,8 +3,9 @@ package repository
 import (
 	"context"
 
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/infrastructure"
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/model"
+	"final_project/internal/infrastructure"
+	"final_project/internal/model"
+
 	"gorm.io/gorm"
 )
 

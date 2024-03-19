@@ -23,10 +23,10 @@ func NewGormPostgres() GormPostgres {
 
 func connect() *gorm.DB {
 	host := "127.0.0.1"
-	port := "15432"
+	port := "5433"
 	user := "postgres"
-	password := "mysecretpassword"
-	dbname := "go_kominfo"
+	password := "talitha2712"
+	dbname := "mygram"
 
 	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})

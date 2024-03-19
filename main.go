@@ -38,6 +38,15 @@ func main() {
 	// requirement technical:
 	// [x] middleware untuk recover ketika panic
 	// [x] mengecheck basic auth
+	server()
+}
+
+// Product:
+// authorization menggunakan jwt
+// authentication bisa dilakukan dengan login
+// ketika user login, akan memunculkan JWT ketika success
+
+func server() {
 	g := gin.Default()
 	g.Use(gin.Recovery())
 
@@ -89,7 +98,3 @@ func main() {
 	g.Run(":3000")
 }
 
-// Product:
-// authorization menggunakan jwt
-// authentication bisa dilakukan dengan login
-// ketika user login, akan memunculkan JWT ketika success

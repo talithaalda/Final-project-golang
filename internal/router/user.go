@@ -1,8 +1,9 @@
 package router
 
 import (
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/handler"
-	"github.com/Calmantara/go-kominfo-2024/go-middleware/internal/middleware"
+	"final_project/internal/handler"
+	"final_project/internal/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
