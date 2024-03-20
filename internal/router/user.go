@@ -23,7 +23,8 @@ func NewUserRouter(v *gin.RouterGroup, handler handler.UserHandler) UserRouter {
 func (u *userRouterImpl) Mount() {
 	// activity
 	// /users/sign-up
-	u.v.POST("/sign-up", u.handler.UserSignUp)
+	u.v.POST("/register", u.handler.UserSignUp)
+	// u.v.POST("/login", u.handler.UserSignUp)
 
 	// users
 	u.v.Use(middleware.CheckAuthBearer)
@@ -31,5 +32,6 @@ func (u *userRouterImpl) Mount() {
 	u.v.GET("", u.handler.GetUsers)
 	// /users/:id
 	u.v.GET("/:id", u.handler.GetUsersById)
+	u.v.PUT("/:id", u.handler.EditUser)
 	u.v.DELETE("/:id", u.handler.DeleteUsersById)
 }

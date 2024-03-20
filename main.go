@@ -90,6 +90,16 @@ func server() {
 	userHdl := handler.NewUserHandler(userSvc)
 	userRouter := router.NewUserRouter(usersGroup, userHdl)
 
+
+	photosGroup := g.Group("/photos")
+
+	// Dependency injection untuk entitas photo
+	photoRepo := repository.NewPhotoQuery(gorm) 
+	photoSvc := service.NewPhotoService(photoRepo, userRepo)   
+	photoHdl := handler.NewPhotoHandler(photoSvc)   
+	photoRouter := router.NewPhotoRouter(photosGroup, photoHdl)
+	photoRouter.Mount()
+
 	// mount
 	userRouter.Mount()
 	// swagger

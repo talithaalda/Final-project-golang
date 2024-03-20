@@ -12,7 +12,7 @@ import (
 type UserQuery interface {
 	GetUsers(ctx context.Context) ([]model.User, error)
 	GetUsersByID(ctx context.Context, id uint64) (model.User, error)
-
+	EditUser(ctx context.Context, id uint64, user model.User) (model.User, error)
 	DeleteUsersByID(ctx context.Context, id uint64) error
 	CreateUser(ctx context.Context, user model.User) (model.User, error)
 }
@@ -80,4 +80,17 @@ func (u *userQueryImpl) CreateUser(ctx context.Context, user model.User) (model.
 		return model.User{}, err
 	}
 	return user, nil
+}
+func (u *userQueryImpl) EditUser(ctx context.Context, id uint64, photo model.User) (model.User, error) {
+	db := u.db.GetConnection()
+	updatedUser := model.User{}
+	if err := db.
+		WithContext(ctx).
+		Table("users").
+		Where("id = ?", id).Updates(&photo).First(&updatedUser).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return model.User{}, nil
+			}
+		}
+	return updatedUser, nil
 }

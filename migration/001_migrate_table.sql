@@ -12,7 +12,7 @@ CREATE TABLE users(
 CREATE TABLE photos(
     id serial primary key not null,
     title varchar(255) not null, 
-    url text not null,  
+    photo_url text not null,  
     caption text,
     user_id  int not null, 
     created_at timestamp not null default now(),

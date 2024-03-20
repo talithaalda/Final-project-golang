@@ -17,7 +17,7 @@ type UserHandler interface {
 	GetUsers(ctx *gin.Context)
 	GetUsersById(ctx *gin.Context)
 	DeleteUsersById(ctx *gin.Context)
-
+	EditUser(ctx *gin.Context)
 	// activity
 	UserSignUp(ctx *gin.Context)
 }
@@ -84,7 +84,44 @@ func (u *userHandlerImpl) GetUsersById(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, user)
 }
+func (u *userHandlerImpl) EditUser(ctx *gin.Context) {
+	
+    id, err := strconv.Atoi(ctx.Param("id"))
+	if id == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "invalid required param"})
+		return
+	}
+	userId, ok := ctx.Get(middleware.CLAIM_USER_ID)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Message: "invalid user session"})
+		return
+	}
+	userIdInt, ok := userId.(float64)
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "invalid user id session"})
+		return
+	}
+	if id != int(userIdInt) {
+		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Message: "invalid user request"})
+		return
+	}
+    // Parse user data from request body
+    var user model.User
+    if err := ctx.ShouldBindJSON(&user); err != nil {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid request body"})
+        return
+    }
 
+    // Call service to edit user data
+    updatedUser, err := u.svc.EditUser(ctx, uint64(id), user)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+        return
+    }
+
+    // Return updated user data
+    ctx.JSON(http.StatusOK, updatedUser)
+}
 func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
 	// binding sign-up body
 	userSignUp := model.UserSignUp{}
@@ -97,7 +134,6 @@ func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
-
 	user, err := u.svc.SignUp(ctx, userSignUp)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
