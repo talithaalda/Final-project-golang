@@ -2,12 +2,15 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"final_project/internal/model"
 	"final_project/internal/repository"
 	"final_project/pkg/helper"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
@@ -20,6 +23,7 @@ type UserService interface {
 
 	// misc
 	GenerateUserAccessToken(ctx context.Context, user model.User) (token string, err error)
+	CheckCredentials(ctx context.Context, email string, password string) (model.User, error)
 }
 
 type userServiceImpl struct {
@@ -83,7 +87,7 @@ func (u *userServiceImpl) SignUp(ctx context.Context, userSignUp model.UserSignU
 	user := model.User{
 		Username: userSignUp.Username,
 		Email:    userSignUp.Email,
-		DoB:      userSignUp.DoB,
+		Age:      userSignUp.Age,
 		// FirstName: userSignUp.FirstName,
 		// LastName:  userSignUp.LastName,
 	}
@@ -122,9 +126,32 @@ func (u *userServiceImpl) GenerateUserAccessToken(ctx context.Context, user mode
 		StandardClaim: claim,
 		UserID:        user.ID,
 		Username:      user.Username,
-		Dob:           user.DoB,
+		Age:           user.Age,
 	}
 
 	token, err = helper.GenerateToken(userClaim)
 	return
+}
+
+
+func (u *userServiceImpl) CheckCredentials(ctx context.Context, email string, password string) (model.User, error) {
+	// Retrieve user by email
+	user, err := u.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	// Check if user exists
+	if user.ID == 0 {
+		return model.User{}, errors.New("user not found")
+	}
+
+	// Compare hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return model.User{}, err
+	}
+
+	// Credentials are correct, return user
+	return user, nil
 }

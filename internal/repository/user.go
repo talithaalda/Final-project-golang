@@ -15,6 +15,7 @@ type UserQuery interface {
 	EditUser(ctx context.Context, id uint64, user model.User) (model.User, error)
 	DeleteUsersByID(ctx context.Context, id uint64) error
 	CreateUser(ctx context.Context, user model.User) (model.User, error)
+	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 }
 
 type UserCommand interface {
@@ -93,4 +94,15 @@ func (u *userQueryImpl) EditUser(ctx context.Context, id uint64, photo model.Use
 			}
 		}
 	return updatedUser, nil
+}
+func (u *userQueryImpl) GetUserByEmail(ctx context.Context, email string) (model.User, error) {
+	db := u.db.GetConnection()
+	user := model.User{}
+	if err := db.WithContext(ctx).Where("email = ?", email).Find(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return model.User{}, nil
+		}
+		return model.User{}, err
+	}
+	return user, nil
 }

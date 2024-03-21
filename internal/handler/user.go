@@ -20,6 +20,7 @@ type UserHandler interface {
 	EditUser(ctx *gin.Context)
 	// activity
 	UserSignUp(ctx *gin.Context)
+	UserLogin(ctx *gin.Context)
 }
 
 type userHandlerImpl struct {
@@ -122,33 +123,6 @@ func (u *userHandlerImpl) EditUser(ctx *gin.Context) {
     // Return updated user data
     ctx.JSON(http.StatusOK, updatedUser)
 }
-func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
-	// binding sign-up body
-	userSignUp := model.UserSignUp{}
-	if err := ctx.Bind(&userSignUp); err != nil {
-		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	if err := userSignUp.Validate(); err != nil {
-		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
-		return
-	}
-	user, err := u.svc.SignUp(ctx, userSignUp)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	token, err := u.svc.GenerateUserAccessToken(ctx, user)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
-	}
-
-	ctx.JSON(http.StatusOK, map[string]any{
-		"token": token,
-	})
-}
 
 // DeleteUsersById godoc
 //
@@ -197,5 +171,59 @@ func (u *userHandlerImpl) DeleteUsersById(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "user not found"})
 		return
 	}
-	ctx.JSON(http.StatusOK, user)
+	ctx.JSON(http.StatusOK, map[string]any{
+		"user":    user,
+		"message": "Your account has been successfully deleted",
+	})
+}
+
+func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
+	// binding sign-up body
+	userSignUp := model.UserSignUp{}
+	if err := ctx.Bind(&userSignUp); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
+		return
+	}
+	user, err := u.svc.SignUp(ctx, userSignUp)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+	token, err := u.svc.GenerateUserAccessToken(ctx, user)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+	}
+
+	ctx.JSON(http.StatusOK, map[string]any{
+		"user":  user,
+		"token": token,
+	})
+}
+
+func (u *userHandlerImpl) UserLogin(ctx *gin.Context) {
+    var userLogin model.UserLogin
+
+    // Parsing data dari body permintaan ke struct UserLogin
+    if err := ctx.Bind(&userLogin); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
+		return
+	}
+
+    // Memeriksa kredensial pengguna
+    user, err := u.svc.CheckCredentials(ctx, userLogin.Email, userLogin.Password)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+        return
+    }
+
+    // Menghasilkan token akses untuk pengguna yang berhasil login
+    token, err := u.svc.GenerateUserAccessToken(ctx, user)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+        return
+    }
+
+    // Mengirimkan token akses sebagai respons ke klien
+    ctx.JSON(http.StatusOK, gin.H{"token": token})
 }

@@ -24,7 +24,7 @@ func (u *userRouterImpl) Mount() {
 	// activity
 	// /users/sign-up
 	u.v.POST("/register", u.handler.UserSignUp)
-	// u.v.POST("/login", u.handler.UserSignUp)
+	u.v.POST("/login", u.handler.UserLogin)
 
 	// users
 	u.v.Use(middleware.CheckAuthBearer)

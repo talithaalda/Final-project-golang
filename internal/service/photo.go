@@ -9,10 +9,10 @@ import (
 
 type PhotoService interface {
 	GetPhotos(ctx context.Context) ([]model.Photo, error)
-	GetPhotoByID(ctx context.Context, id uint64) (model.Photo, error)
-	DeletePhotoByID(ctx context.Context, id uint64) (model.Photo, error)
-	CreatePhoto(ctx context.Context, photo model.Photo, userID uint64) (model.Photo, error)
-	EditPhoto(ctx context.Context, id uint64, photo model.Photo) (model.Photo, error)
+	GetPhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error)
+	DeletePhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error)
+	CreatePhoto(ctx context.Context, photo model.CreatePhoto, userID uint64) (model.CreatePhoto, error)
+	EditPhoto(ctx context.Context, id uint64, photo model.UpdatePhoto) (model.UpdatePhoto, error)
 }
 
 type photoServiceImpl struct {
@@ -51,36 +51,36 @@ func (p *photoServiceImpl) GetPhotos(ctx context.Context) ([]model.Photo, error)
 }
 
 
-func (p *photoServiceImpl) GetPhotoByID(ctx context.Context, id uint64) (model.Photo, error) {
+func (p *photoServiceImpl) GetPhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error) {
 	photo, err := p.repoPhoto.GetPhotoByID(ctx, id)
 	if err != nil {
-		return model.Photo{}, err
+		return model.UpdatePhoto{}, err
 	}
 	return photo, err
 }
 
-func (p *photoServiceImpl) DeletePhotoByID(ctx context.Context, id uint64) (model.Photo, error) {
+func (p *photoServiceImpl) DeletePhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error) {
 	photo, err := p.repoPhoto.GetPhotoByID(ctx, id)
 	if err != nil {
-		return model.Photo{}, err
+		return model.UpdatePhoto{}, err
 	}
 	// if photo doesn't exist, return
 	if photo.ID == 0 {
-		return model.Photo{}, nil
+		return model.UpdatePhoto{}, nil
 	}
 
 	// delete photo by id
 	err = p.repoPhoto.DeletePhotoByID(ctx, id)
 	if err != nil {
-		return model.Photo{}, err
+		return model.UpdatePhoto{}, err
 	}
 
 	return photo, err
 }
 
-func (p *photoServiceImpl) CreatePhoto(ctx context.Context, CreatePhoto model.Photo, userID uint64) (model.Photo, error) {
+func (p *photoServiceImpl) CreatePhoto(ctx context.Context, CreatePhoto model.CreatePhoto, userID uint64) (model.CreatePhoto, error) {
 	// Set created_at and updated_at timestamp
-	photo := model.Photo{
+	photo := model.CreatePhoto{
 		Title: CreatePhoto.Title,
 		Caption: CreatePhoto.Caption,
 		PhotoURL: CreatePhoto.PhotoURL,
@@ -90,17 +90,17 @@ func (p *photoServiceImpl) CreatePhoto(ctx context.Context, CreatePhoto model.Ph
 	// Call repoPhotository to create photo
 	createdPhoto, err := p.repoPhoto.CreatePhoto(ctx, photo)
 	if err != nil {
-		return model.Photo{}, err
+		return model.CreatePhoto{}, err
 	}
 	return createdPhoto, nil
 }
-func (p *photoServiceImpl) EditPhoto(ctx context.Context, id uint64, photo model.Photo) (model.Photo, error) {
+func (p *photoServiceImpl) EditPhoto(ctx context.Context, id uint64, photo model.UpdatePhoto) (model.UpdatePhoto, error) {
     // Perform validation or additional checks here if necessary
 
     // Call repository to edit photo
     updatedPhoto, err := p.repoPhoto.EditPhoto(ctx, id, photo)
     if err != nil {
-        return model.Photo{}, err
+        return model.UpdatePhoto{}, err
     }
     return updatedPhoto, nil
 }

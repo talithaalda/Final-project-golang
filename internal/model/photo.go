@@ -25,7 +25,23 @@ type Photo struct {
 
 	
 }
+type CreatePhoto struct {
+	ID        uint64    `json:"id" `
+	Title string `json:"title" binding:"required"`
+	PhotoURL string    `json:"photo_url" binding:"required"`
+	Caption string    `json:"caption" `
+	UserID    uint64    `json:"user_id"`
+	CreatedAt time.Time      `json:"created_at"`
+}
 
+type UpdatePhoto struct {
+	ID        uint64    `json:"id" `
+	Title 		string `json:"title" `
+	PhotoURL string    `json:"photo_url" `
+	Caption string    `json:"caption" `
+	UserID    uint64    `json:"user_id"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}
 // type DefaultColumn struct {
 // 	CreatedAt time.Time      `json:"created_at"`
 // 	UpdatedAt time.Time      `json:"updated_at"`
@@ -36,13 +52,19 @@ type Photo struct {
 
 // https://blog.logrocket.com/gin-binding-in-go-a-tutorial-with-examples/
 // https://gin-gonic.com/docs/examples/binding-and-validation/
-type CreatePhoto struct {
-	Title string `json:"title" binding:"required"`
-	PhotoURL string    `json:"photo_url" binding:"required"`
-	Caption string    `json:"caption" `
-}
+
 
 func (u CreatePhoto) Validate() error {
+	// check username
+	if u.Title == "" {
+		return errors.New("invalid title")
+	}
+	if u.PhotoURL == "" {
+		return errors.New("invalid url")
+	}
+	return nil
+}
+func (u UpdatePhoto) Validate() error {
 	// check username
 	if u.Title == "" {
 		return errors.New("invalid title")

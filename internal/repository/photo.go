@@ -11,10 +11,10 @@ import (
 
 type PhotoQuery interface {
 	GetPhotos(ctx context.Context) ([]model.Photo, error)
-	GetPhotoByID(ctx context.Context, id uint64) (model.Photo, error)
+	GetPhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error)
 	DeletePhotoByID(ctx context.Context, id uint64) error
-	CreatePhoto(ctx context.Context, photo model.Photo) (model.Photo, error)
-	EditPhoto(ctx context.Context, id uint64, user model.Photo) (model.Photo, error)
+	CreatePhoto(ctx context.Context, photo model.CreatePhoto) (model.CreatePhoto, error)
+	EditPhoto(ctx context.Context, id uint64, user model.UpdatePhoto) (model.UpdatePhoto, error)
 }
 
 type photoQueryImpl struct {
@@ -37,18 +37,18 @@ func (p *photoQueryImpl) GetPhotos(ctx context.Context) ([]model.Photo, error) {
 	return photos, nil
 }
 
-func (p *photoQueryImpl) GetPhotoByID(ctx context.Context, id uint64) (model.Photo, error) {
+func (p *photoQueryImpl) GetPhotoByID(ctx context.Context, id uint64) (model.UpdatePhoto, error) {
 	db := p.db.GetConnection()
-	photo := model.Photo{}
+	photo := model.UpdatePhoto{}
 	if err := db.
 		WithContext(ctx).
 		Table("photos").
 		Where("id = ?", id).
 		Find(&photo).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return model.Photo{}, nil
+			return model.UpdatePhoto{}, nil
 		}
-		return model.Photo{}, err
+		return model.UpdatePhoto{}, err
 	}
 	return photo, nil
 }
@@ -58,31 +58,31 @@ func (p *photoQueryImpl) DeletePhotoByID(ctx context.Context, id uint64) error {
 	if err := db.
 		WithContext(ctx).
 		Table("photos").
-		Delete(&model.Photo{ID: id}).Error; err != nil {
+		Delete(&model.UpdatePhoto{ID: id}).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *photoQueryImpl) CreatePhoto(ctx context.Context, photo model.Photo) (model.Photo, error) {
+func (p *photoQueryImpl) CreatePhoto(ctx context.Context, photo model.CreatePhoto) (model.CreatePhoto, error) {
 	db := p.db.GetConnection()
 	if err := db.
 		WithContext(ctx).
 		Table("photos").
 		Save(&photo).Error; err != nil {
-		return model.Photo{}, err
+		return model.CreatePhoto{}, err
 	}
 	return photo, nil
 }
-func (u *photoQueryImpl) EditPhoto(ctx context.Context, id uint64, user model.Photo) (model.Photo, error) {
+func (u *photoQueryImpl) EditPhoto(ctx context.Context, id uint64, user model.UpdatePhoto) (model.UpdatePhoto, error) {
 	db := u.db.GetConnection()
-	updatedPhoto := model.Photo{}
+	updatedPhoto := model.UpdatePhoto{}
 	if err := db.
 		WithContext(ctx).
 		Table("photos").
 		Where("id = ?", id).Updates(&user).First(&updatedPhoto).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				return model.Photo{}, nil
+				return model.UpdatePhoto{}, nil
 			}
 		}
 	return updatedPhoto, nil

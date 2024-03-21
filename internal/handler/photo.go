@@ -59,28 +59,52 @@ func (p *photoHandlerImpl) GetPhotoByID(ctx *gin.Context) {
 }
 
 func (p *photoHandlerImpl) DeletePhotoByID(ctx *gin.Context) {
-	// get photo ID from path parameter
-	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "invalid photo ID"})
+	// Get photo ID from path parameter
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if id == 0 || err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "invalid required param"})
 		return
 	}
 
-	photo, err := p.photoService.DeletePhotoByID(ctx, id)
+	// Check user ID session from context
+	userId, ok := ctx.Get(middleware.CLAIM_USER_ID)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Message: "Invalid user session"})
+		return
+	}
+	userIdInt, ok := userId.(float64)
+	if !ok {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid user ID session"})
+		return
+	}
+
+	// Delete photo by ID
+	photo, err := p.photoService.DeletePhotoByID(ctx, uint64(id))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
+
+	// Check if the photo exists
 	if photo.ID == 0 {
-		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "photo not found"})
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "Photo not found"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, photo)
+	// Check if the user ID from the middleware matches the user ID in the photo data
+	if int(photo.UserID) != int(userIdInt) {
+        ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Message: "You are not authorized to delete this photo"})
+        return
+    }
+
+	ctx.JSON(http.StatusOK, map[string]any{
+		"photo":    photo,
+		"message": "Your photo has been successfully deleted",
+	})
 }
 
 func (p *photoHandlerImpl) CreatePhoto(ctx *gin.Context) {
-	var photo model.Photo
+	photo := model.CreatePhoto{}
 	if err := ctx.BindJSON(&photo); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
 		return

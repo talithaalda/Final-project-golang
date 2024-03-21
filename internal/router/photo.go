@@ -35,5 +35,5 @@ func (p *photoRouterImpl) Mount() {
 	p.v.PUT("/:id", p.handler.EditPhoto)
 
 	// Endpoint untuk membuat foto baru
-	p.v.POST("/create-photos", p.handler.CreatePhoto)
+	p.v.POST("", p.handler.CreatePhoto)
 }
