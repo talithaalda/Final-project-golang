@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 
 	_ "final_project/cmd/docs"
 
+	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -47,6 +49,10 @@ func main() {
 // ketika user login, akan memunculkan JWT ketika success
 
 func server() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 	g := gin.Default()
 	g.Use(gin.Recovery())
 
