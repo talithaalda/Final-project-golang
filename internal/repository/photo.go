@@ -15,6 +15,7 @@ type PhotoQuery interface {
 	DeletePhotoByID(ctx context.Context, id uint64) error
 	CreatePhoto(ctx context.Context, photo model.CreatePhoto) (model.CreatePhoto, error)
 	EditPhoto(ctx context.Context, id uint64, user model.UpdatePhoto) (model.UpdatePhoto, error)
+	GetPhotoByUserID(ctx context.Context, photoID uint64) ([]model.GetPhoto, error)
 }
 
 type photoQueryImpl struct {
@@ -86,4 +87,16 @@ func (u *photoQueryImpl) EditPhoto(ctx context.Context, id uint64, user model.Up
 			}
 		}
 	return updatedPhoto, nil
+}
+func (p *photoQueryImpl) GetPhotoByUserID(ctx context.Context, userID uint64) ([]model.GetPhoto, error) {
+	db := p.db.GetConnection()
+	photos := []model.GetPhoto{}
+	if err := db.
+		WithContext(ctx).
+		Table("photos").
+		Where("user_id = ?", userID).
+		Find(&photos).Error; err != nil {
+		return nil, err
+	}
+	return photos, nil
 }

@@ -19,6 +19,7 @@ type User struct {
     UpdatedAt time.Time      `json:"updated_at"`
     DeletedAt gorm.DeletedAt `json:"-" gorm:"column:deleted_at"`
     Photos    []Photo        `json:"photos,omitempty"`
+	Comments  []Comment      `json:"comments,omitempty"`
 }
 
 // type DefaultColumn struct {
@@ -33,7 +34,7 @@ type UserMediaSocial struct {
 	Title     string `json:"title"`
 	Url       string `json:"url"`
 	Photos    []Photo   `json:"photos,omitempty"`
-	// Comments  []Comment `json:"comments,omitempty"`
+	Comments  []Comment `json:"comments,omitempty"`
 	// SocialMedias []SocialMedia `json:"social_medias,omitempty"`
 }
 

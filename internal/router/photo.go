@@ -29,6 +29,7 @@ func (p *photoRouterImpl) Mount() {
 
 	// Endpoint untuk menampilkan detail foto berdasarkan ID
 	p.v.GET("/:id", p.handler.GetPhotoByID)
+	p.v.GET("/user_id/:id", p.handler.GetPhotoByUserID)
 
 	// Endpoint untuk menghapus foto berdasarkan ID
 	p.v.DELETE("/:id", p.handler.DeletePhotoByID)

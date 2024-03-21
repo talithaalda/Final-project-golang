@@ -85,23 +85,25 @@ func server() {
 	// https://s8sg.medium.com/solid-principle-in-go-e1a624290346
 	gorm := infrastructure.NewGormPostgres()
 	userRepo := repository.NewUserQuery(gorm)
-	// userRepoMongo := repository.NewUserQueryMongo()
 	userSvc := service.NewUserService(userRepo)
 	userHdl := handler.NewUserHandler(userSvc)
 	userRouter := router.NewUserRouter(usersGroup, userHdl)
-
-
+	userRouter.Mount()
 	photosGroup := g.Group("/photos")
-
-	// Dependency injection untuk entitas photo
 	photoRepo := repository.NewPhotoQuery(gorm) 
 	photoSvc := service.NewPhotoService(photoRepo, userRepo)   
 	photoHdl := handler.NewPhotoHandler(photoSvc)   
 	photoRouter := router.NewPhotoRouter(photosGroup, photoHdl)
 	photoRouter.Mount()
+	commentsGroup := g.Group("/comments")
+	commentRepo := repository.NewCommentQuery(gorm) 
+	commentSvc := service.NewCommentService(commentRepo, userRepo, photoRepo)   
+	commentHdl := handler.NewCommentHandler(commentSvc)   
+	commentRouter := router.NewCommentRouter(commentsGroup, commentHdl)
+	commentRouter.Mount()
 
 	// mount
-	userRouter.Mount()
+	
 	// swagger
 	g.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

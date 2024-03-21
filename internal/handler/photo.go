@@ -18,6 +18,7 @@ type PhotoHandler interface {
 	DeletePhotoByID(ctx *gin.Context)
 	CreatePhoto(ctx *gin.Context)
 	EditPhoto(ctx *gin.Context)
+	GetPhotoByUserID(ctx *gin.Context)
 }
 
 type photoHandlerImpl struct {
@@ -167,4 +168,22 @@ func (p *photoHandlerImpl) EditPhoto(ctx *gin.Context) {
 
     // Return updated photo data
     ctx.JSON(http.StatusOK, updatedPhoto)
+}
+func (p *photoHandlerImpl) GetPhotoByUserID(ctx *gin.Context) {
+    photoID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid photo ID"})
+        return
+    }
+
+    photo, err := p.photoService.GetPhotoByUserID(ctx, photoID)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
+        return
+    }
+	if len(photo) == 0 {
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "photo not found"})
+		return
+	}
+    ctx.JSON(http.StatusOK, photo)
 }
