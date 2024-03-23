@@ -51,6 +51,10 @@ func (u *userHandlerImpl) GetUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
+	if len(users) == 0 {
+        ctx.JSON(http.StatusOK, gin.H{"message": "No user found"})
+        return
+    }
 	ctx.JSON(http.StatusOK, users)
 }
 
@@ -184,20 +188,17 @@ func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
+	if err := userSignUp.Validate(); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: err.Error()})
+		return
+	}
 	user, err := u.svc.SignUp(ctx, userSignUp)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
-
-	token, err := u.svc.GenerateUserAccessToken(ctx, user)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
-	}
-
-	ctx.JSON(http.StatusOK, map[string]any{
+	ctx.JSON(http.StatusCreated, map[string]any{
 		"user":  user,
-		"token": token,
 	})
 }
 

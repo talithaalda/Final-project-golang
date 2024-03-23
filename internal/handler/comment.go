@@ -29,22 +29,37 @@ func NewCommentHandler(commentService service.CommentService) CommentHandler {
     return &commentHandlerImpl{commentService: commentService}
 }
 
-func (c *commentHandlerImpl) GetCommentsByPhotoID(ctx *gin.Context) {
-    photoID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid comment ID"})
+func (s *commentHandlerImpl) GetCommentsByPhotoID(ctx *gin.Context) {
+    // Ambil nilai photo_id dari query string
+    photoIDStr := ctx.Query("photo_id")
+    
+    // Periksa apakah nilai photo_id ada atau tidak
+    if photoIDStr == "" {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Photo ID is required"})
         return
     }
 
-    comments, err := c.commentService.GetCommentsByPhotoID(ctx, photoID)
+    // Parse nilai photo_id menjadi uint64
+    photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid photo ID"})
+        return
+    }
+
+    // Panggil service untuk mendapatkan daftar comment berdasarkan photo ID
+    comments, err := s.commentService.GetCommentsByPhotoID(ctx, photoID)
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
         return
     }
-	if len(comments) == 0 {
-		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "comment not found"})
-		return
-	}
+
+    // Periksa jika tidak ada comment yang ditemukan
+    if len(comments) == 0 {
+        ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "Comment not found"})
+        return
+    }
+
+    // Kirim respons dengan daftar comment yang ditemukan
     ctx.JSON(http.StatusOK, comments)
 }
 
@@ -183,5 +198,9 @@ func (c *commentHandlerImpl) GetComments(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
+	if len(comments) == 0 {
+        ctx.JSON(http.StatusOK, gin.H{"message": "No comment found"})
+        return
+    }
 	ctx.JSON(http.StatusOK, comments)
 }

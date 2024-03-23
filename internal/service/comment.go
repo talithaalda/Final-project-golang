@@ -144,5 +144,27 @@ func (c *commentServiceImpl) GetCommentsByPhotoID(ctx context.Context, photoID u
     if err != nil {
         return nil, err
     }
+	for i, comment := range comments {
+        user, err := c.repoUser.GetUsersByID(ctx, comment.UserID)
+		
+        if err != nil {
+            return nil, err
+        }
+        
+        // Menetapkan data pengguna ke dalam struktur data foto
+        comments[i].User.Email = user.Email
+        comments[i].User.Username = user.Username
+		comments[i].User.ID = user.ID
+
+		photo, err := c.repoPhoto.GetPhotoByID(ctx, comment.PhotoID)
+		if err != nil {
+			return nil, err
+		}
+		comments[i].Photo.ID = photo.ID
+		comments[i].Photo.Title = photo.Title
+		comments[i].Photo.Caption = photo.Caption
+		comments[i].Photo.PhotoURL = photo.PhotoURL
+		comments[i].Photo.UserID = photo.UserID
+    }
     return comments, nil
 }

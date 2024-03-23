@@ -44,6 +44,7 @@ func (p *photoServiceImpl) GetPhotos(ctx context.Context) ([]model.Photo, error)
         }
         
         // Menetapkan data pengguna ke dalam struktur data foto
+		photos[i].User.ID = user.ID
         photos[i].User.Email = user.Email
         photos[i].User.Username = user.Username
     }

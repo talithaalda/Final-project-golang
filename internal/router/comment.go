@@ -26,10 +26,10 @@ func (c *commentRouterImpl) Mount() {
 
 	// Menampilkan daftar komentar berdasarkan ID foto
 	c.v.GET("/:id", c.handler.GetCommentByID)
-	c.v.GET("/photo_id=id", c.handler.GetCommentsByPhotoID)
+	c.v.GET("", c.handler.GetCommentsByPhotoID)
 	// Membuat komentar baru
 	c.v.POST("", c.handler.CreateComment)
-	c.v.GET("", c.handler.GetComments)
+	// c.v.GET("", c.handler.GetComments)
 
 	// Memperbarui komentar berdasarkan ID
 	c.v.PUT("/:id", c.handler.UpdateComment)

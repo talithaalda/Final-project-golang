@@ -35,6 +35,10 @@ func (p *photoHandlerImpl) GetPhotos(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
 		return
 	}
+	if len(photos) == 0 {
+        ctx.JSON(http.StatusOK, gin.H{"message": "No photo found"})
+        return
+    }
 	ctx.JSON(http.StatusOK, photos)
 }
 
@@ -169,21 +173,36 @@ func (p *photoHandlerImpl) EditPhoto(ctx *gin.Context) {
     // Return updated photo data
     ctx.JSON(http.StatusOK, updatedPhoto)
 }
-func (p *photoHandlerImpl) GetPhotoByUserID(ctx *gin.Context) {
-    photoID, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
-    if err != nil {
-        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid photo ID"})
+func (s *photoHandlerImpl) GetPhotoByUserID(ctx *gin.Context) {
+    // Ambil nilai user_id dari query string
+    userIDStr := ctx.Query("user_id")
+    
+    // Periksa apakah nilai user_id ada atau tidak
+    if userIDStr == "" {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "User ID is required"})
         return
     }
 
-    photo, err := p.photoService.GetPhotoByUserID(ctx, photoID)
+    // Parse nilai user_id menjadi uint64
+    userID, err := strconv.ParseUint(userIDStr, 10, 64)
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid user ID"})
+        return
+    }
+
+    // Panggil service untuk mendapatkan daftar photo berdasarkan user ID
+    photos, err := s.photoService.GetPhotoByUserID(ctx, userID)
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
         return
     }
-	if len(photo) == 0 {
-		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "photo not found"})
-		return
-	}
-    ctx.JSON(http.StatusOK, photo)
+
+    // Periksa jika tidak ada photo yang ditemukan
+    if len(photos) == 0 {
+        ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Message: "Photo not found"})
+        return
+    }
+
+    // Kirim respons dengan daftar photo yang ditemukan
+    ctx.JSON(http.StatusOK, photos)
 }

@@ -14,7 +14,7 @@ type UserQuery interface {
 	GetUsersByID(ctx context.Context, id uint64) (model.User, error)
 	EditUser(ctx context.Context, id uint64, user model.User) (model.User, error)
 	DeleteUsersByID(ctx context.Context, id uint64) error
-	CreateUser(ctx context.Context, user model.User) (model.User, error)
+	CreateUser(ctx context.Context, user model.User) (model.User,error)
 	GetUserByEmail(ctx context.Context, email string) (model.User, error)
 }
 
@@ -73,6 +73,7 @@ func (u *userQueryImpl) DeleteUsersByID(ctx context.Context, id uint64) error {
 }
 
 func (u *userQueryImpl) CreateUser(ctx context.Context, user model.User) (model.User, error) {
+	
 	db := u.db.GetConnection()
 	if err := db.
 		WithContext(ctx).

@@ -107,6 +107,12 @@ func server() {
 	commentHdl := handler.NewCommentHandler(commentSvc)   
 	commentRouter := router.NewCommentRouter(commentsGroup, commentHdl)
 	commentRouter.Mount()
+	socialMediasGroup := g.Group("/socialmedias")
+	socialMediaRepo := repository.NewSocialMediaQuery(gorm) 
+	socialMediaSvc := service.NewSocialMediaService(socialMediaRepo, userRepo)   
+	socialMediaHdl := handler.NewSocialMediaHandler(socialMediaSvc)   
+	socialMediaRouter := router.NewSocialMediaRouter(socialMediasGroup, socialMediaHdl)
+	socialMediaRouter.Mount()
 
 	// mount
 	

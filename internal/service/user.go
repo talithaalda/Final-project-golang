@@ -19,7 +19,7 @@ type UserService interface {
 	DeleteUsersById(ctx context.Context, id uint64) (model.User, error)
 	EditUser(ctx context.Context, id uint64, user model.User) (model.User, error)
 	// activity
-	SignUp(ctx context.Context, userSignUp model.UserSignUp) (model.User, error)
+	SignUp(ctx context.Context, userSignUp model.UserSignUp) (*model.PrintUser, error)
 
 	// misc
 	GenerateUserAccessToken(ctx context.Context, user model.User) (token string, err error)
@@ -82,30 +82,48 @@ func (u *userServiceImpl) EditUser(ctx context.Context, id uint64, user model.Us
     return updatedUser, nil
 }
 
-func (u *userServiceImpl) SignUp(ctx context.Context, userSignUp model.UserSignUp) (model.User, error) {
-	// assumption: semua user adalah user baru
+func (u *userServiceImpl) SignUp(ctx context.Context, userSignUp model.UserSignUp) (*model.PrintUser, error) {
+	dob, err := time.Parse("2006-01-02", userSignUp.Dob)
+	if err != nil {
+		return nil, errors.New("invalid date of birth format")
+	}
+
+	// Hitung usia berdasarkan tanggal lahir
+	today := time.Now()
+	age := today.Year() - dob.Year()
+	if today.Month() < dob.Month() || (today.Month() == dob.Month() && today.Day() < dob.Day()) {
+		age--
+	}
+
+	// Periksa apakah usia >= 8 tahun
+	if age < 8 {
+		return nil, errors.New("age must be at least 8 years old")
+	}
 	user := model.User{
 		Username: userSignUp.Username,
 		Email:    userSignUp.Email,
-		Age:      userSignUp.Age,
-		// FirstName: userSignUp.FirstName,
-		// LastName:  userSignUp.LastName,
+		Dob:      dob,
 	}
-
 	// encryption password
 	// hashing
 	pass, err := helper.GenerateHash(userSignUp.Password)
 	if err != nil {
-		return model.User{}, err
+		return nil, err
 	}
 	user.Password = pass
-
 	// store to db
-	res, err := u.repo.CreateUser(ctx, user)
+	createdUser, err := u.repo.CreateUser(ctx, user)
 	if err != nil {
-		return model.User{}, err
+		return nil, err
 	}
-	return res, err
+	printUser := model.PrintUser{
+		ID:       createdUser.ID,
+		Username: createdUser.Username,
+		Email:    createdUser.Email,
+		Dob:      createdUser.Dob,
+	}
+	
+	return &printUser, err
 }
 
 func (u *userServiceImpl) GenerateUserAccessToken(ctx context.Context, user model.User) (token string, err error) {
@@ -126,7 +144,7 @@ func (u *userServiceImpl) GenerateUserAccessToken(ctx context.Context, user mode
 		StandardClaim: claim,
 		UserID:        user.ID,
 		Username:      user.Username,
-		Age:           user.Age,
+		Dob:           user.Dob,
 	}
 
 	token, err = helper.GenerateToken(userClaim)
