@@ -1614,7 +1614,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:3000",
 	BasePath:         "/",
 	Schemes:          []string{"http"},
-	Title:            "GO DTS USER API DUCUMENTATION",
+	Title:            "FINAL PROJECT MY GRAM DTS",
 	Description:      "Final Project My Gram",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

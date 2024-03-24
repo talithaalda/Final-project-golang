@@ -24,7 +24,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title			GO DTS USER API DUCUMENTATION
+// @title			FINAL PROJECT MY GRAM DTS
 // @version		2.0
 // @description	Final Project My Gram
 // @termsOfService	http://swagger.io/terms/
