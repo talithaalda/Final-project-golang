@@ -57,7 +57,11 @@ type UpdatePhoto struct {
 // 	UpdatedAt time.Time      `json:"updated_at"`
 // 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"column:deleted_at"`
 // }
-
+type InputPhoto struct {
+	Title string `json:"title" binding:"required"`
+	PhotoURL string    `json:"photo_url" binding:"required"`
+	Caption string    `json:"caption"`
+}
 
 
 // https://blog.logrocket.com/gin-binding-in-go-a-tutorial-with-examples/

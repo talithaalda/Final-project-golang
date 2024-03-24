@@ -1,0 +1,1040 @@
+basePath: /
+definitions:
+  model.Comment:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      message:
+        type: string
+      photo:
+        properties:
+          caption:
+            type: string
+          id:
+            type: integer
+          photo_url:
+            type: string
+          title:
+            type: string
+          user_id:
+            type: integer
+        type: object
+      photo_id:
+        type: integer
+      updated_at:
+        type: string
+      user:
+        properties:
+          Id:
+            type: integer
+          email:
+            type: string
+          username:
+            type: string
+        type: object
+      user_id:
+        type: integer
+    type: object
+  model.CreateCommentInput:
+    properties:
+      message:
+        type: string
+      photo_id:
+        type: integer
+    required:
+    - message
+    - photo_id
+    type: object
+  model.CreatePhoto:
+    properties:
+      caption:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - photo_url
+    - title
+    type: object
+  model.CreateSocialMedia:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    - social_media_url
+    type: object
+  model.InputPhoto:
+    properties:
+      caption:
+        type: string
+      photo_url:
+        type: string
+      title:
+        type: string
+    required:
+    - photo_url
+    - title
+    type: object
+  model.InputSocialMedia:
+    properties:
+      name:
+        type: string
+      social_media_url:
+        type: string
+    required:
+    - name
+    - social_media_url
+    type: object
+  model.Photo:
+    properties:
+      caption:
+        type: string
+      comments:
+        items:
+          $ref: '#/definitions/model.Comment'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        properties:
+          email:
+            type: string
+          username:
+            type: string
+        type: object
+      user_id:
+        type: integer
+    type: object
+  model.SocialMedia:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      updated_at:
+        type: string
+      user:
+        properties:
+          email:
+            type: string
+          id:
+            type: integer
+          username:
+            type: string
+        type: object
+      user_id:
+        type: integer
+    type: object
+  model.UpdateCommentInput:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  model.UpdatePhoto:
+    properties:
+      caption:
+        type: string
+      id:
+        type: integer
+      photo_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - caption
+    - photo_url
+    - title
+    type: object
+  model.UpdateSocialMedia:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      social_media_url:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    required:
+    - name
+    - social_media_url
+    type: object
+  model.User:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/model.Comment'
+        type: array
+      created_at:
+        type: string
+      dob:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      photos:
+        items:
+          $ref: '#/definitions/model.Photo'
+        type: array
+      social_medias:
+        items:
+          $ref: '#/definitions/model.SocialMedia'
+        type: array
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  model.UserLogin:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.UserSignUp:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        description: ID       uint64    `json:"id" gorm:"primaryKey"`
+        type: string
+    required:
+    - dob
+    - email
+    - password
+    - username
+    type: object
+  model.UserUpdate:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - dob
+    - email
+    - username
+    type: object
+  model.UserUpdateInput:
+    properties:
+      email:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - username
+    type: object
+  pkg.ErrorResponse:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+      message:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Final Project My Gram
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GO DTS USER API DUCUMENTATION
+  version: "2.0"
+paths:
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of comments based on the given photo ID
+      parameters:
+      - description: Photo ID
+        in: query
+        name: photo_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No comment found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Comment not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve comments by photo ID
+      tags:
+      - comments
+    post:
+      consumes:
+      - application/json
+      description: Create a new comment for a photo
+      parameters:
+      - description: Comment data
+        in: body
+        name: photo_id
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCommentInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: comment
+          schema:
+            $ref: '#/definitions/model.Comment'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new comment
+      tags:
+      - comments
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing comment
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: comment
+          schema:
+            $ref: '#/definitions/model.Comment'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete an existing comment
+      tags:
+      - comments
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a comment by its ID
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: comment
+          schema:
+            $ref: '#/definitions/model.Comment'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Comment not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve comment by ID
+      tags:
+      - comments
+    put:
+      consumes:
+      - application/json
+      description: Update an existing comment
+      parameters:
+      - description: Comment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Comment data
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateCommentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: updatedComment
+          schema:
+            $ref: '#/definitions/model.Comment'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update an existing comment
+      tags:
+      - comments
+  /photos:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of photos by user ID.
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Photo'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Photo not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve photos by user ID
+      tags:
+      - photos
+    post:
+      consumes:
+      - application/json
+      description: Create a new photo.
+      parameters:
+      - description: Photo data
+        in: body
+        name: photo
+        required: true
+        schema:
+          $ref: '#/definitions/model.InputPhoto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CreatePhoto'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new photo
+      tags:
+      - photos
+  /photos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a photo by its ID.
+      parameters:
+      - description: Photo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UpdatePhoto'
+        "404":
+          description: Photo not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete photo by ID
+      tags:
+      - photos
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a photo by its ID
+      parameters:
+      - description: Photo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: photo
+          schema:
+            $ref: '#/definitions/model.UpdatePhoto'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Photo not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve photo by ID
+      tags:
+      - photos
+    put:
+      consumes:
+      - application/json
+      description: Update information of a photo.
+      parameters:
+      - description: Photo ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Photo data
+        in: body
+        name: photo
+        required: true
+        schema:
+          $ref: '#/definitions/model.InputPhoto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.UpdatePhoto'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update photo information
+      tags:
+      - photos
+  /socialmedias:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve social media associated with a user based on user ID
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: socialMedia
+          schema:
+            items:
+              $ref: '#/definitions/model.SocialMedia'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Social media not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve social media by user ID
+      tags:
+      - social media
+    post:
+      consumes:
+      - application/json
+      description: Create a new social media entry
+      parameters:
+      - description: Social media data
+        in: body
+        name: SocialMedia
+        required: true
+        schema:
+          $ref: '#/definitions/model.InputSocialMedia'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: createdSocialMedia
+          schema:
+            $ref: '#/definitions/model.CreateSocialMedia'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create new social media
+      tags:
+      - social media
+  /socialmedias/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing social media entry
+      parameters:
+      - description: Social Media ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: socialMedia
+          schema:
+            $ref: '#/definitions/model.UpdateSocialMedia'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Social media not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete social media
+      tags:
+      - social media
+    get:
+      consumes:
+      - application/json
+      description: Retrieve social media by its ID
+      parameters:
+      - description: Social Media ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: socialMedia
+          schema:
+            $ref: '#/definitions/model.SocialMedia'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Social media not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve social media by ID
+      tags:
+      - social media
+    put:
+      consumes:
+      - application/json
+      description: Update an existing social media entry
+      parameters:
+      - description: Social Media ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated social media data
+        in: body
+        name: SocialMedia
+        required: true
+        schema:
+          $ref: '#/definitions/model.InputSocialMedia'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: updatedSocialMedia
+          schema:
+            $ref: '#/definitions/model.UpdateSocialMedia'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Social media not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update social media
+      tags:
+      - social media
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No user found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve list of users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: will delete user with given id from param
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Delete user by selected id
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retrieve user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update information of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: updatedUser
+          schema:
+            $ref: '#/definitions/model.UserUpdate'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Update user information
+      tags:
+      - users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Log in a user with email and password
+      parameters:
+      - description: User login details
+        in: body
+        name: userLogin
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      summary: User login
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user
+      parameters:
+      - description: User sign-up details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSignUp'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: user
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/pkg.ErrorResponse'
+      summary: User register
+      tags:
+      - users
+schemes:
+- http
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

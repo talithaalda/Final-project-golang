@@ -33,18 +33,18 @@ func NewUserHandler(svc service.UserService) UserHandler {
 	}
 }
 
-// ShowUsers godoc
-//
-//	@Summary		Show users list
-//	@Description	will fetch 3rd party server to get users data
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	[]model.User
-//	@Failure		400	{object}	pkg.ErrorResponse
-//	@Failure		404	{object}	pkg.ErrorResponse
-//	@Failure		500	{object}	pkg.ErrorResponse
-//	@Router			/users [get]
+// GetUsers godoc
+// @Summary Retrieve list of users
+// @Description Retrieve a list of all users
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Success 200 {array} model.User "users"
+// @Success 200 {object} pkg.ErrorResponse "No user found"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /users [get]
 func (u *userHandlerImpl) GetUsers(ctx *gin.Context) {
 	users, err := u.svc.GetUsers(ctx)
 	if err != nil {
@@ -58,19 +58,19 @@ func (u *userHandlerImpl) GetUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
-// ShowUsersById godoc
-//
-//	@Summary		Show users detail
-//	@Description	will fetch 3rd party server to get users data to get detail user
-//	@Tags			users
-//	@Accept			json
-//	@Produce		json
-//	@Param			id	path		int	true	"User ID"
-//	@Success		200	{object}	model.User
-//	@Failure		400	{object}	pkg.ErrorResponse
-//	@Failure		404	{object}	pkg.ErrorResponse
-//	@Failure		500	{object}	pkg.ErrorResponse
-//	@Router			/users/{id} [get]
+// GetUsersById godoc
+// @Summary Retrieve user by ID
+// @Description Retrieve a user by its ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "User ID"
+// @Success 200 {object} model.User "user"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 404 {object} pkg.ErrorResponse "User not found"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /users/{id} [get]
 func (u *userHandlerImpl) GetUsersById(ctx *gin.Context) {
 	// get id user
 	id, err := strconv.Atoi(ctx.Param("id"))
@@ -89,6 +89,20 @@ func (u *userHandlerImpl) GetUsersById(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, user)
 }
+// EditUser godoc
+// @Summary Update user information
+// @Description Update information of a user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Security Bearer
+// @Param user body model.UserUpdateInput true "User data"
+// @Success 200 {object} model.UserUpdate "updatedUser"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 401 {object} pkg.ErrorResponse "Unauthorized"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /users/{id} [put]
 func (u *userHandlerImpl) EditUser(ctx *gin.Context) {
 	
     id, err := strconv.Atoi(ctx.Param("id"))
@@ -111,7 +125,7 @@ func (u *userHandlerImpl) EditUser(ctx *gin.Context) {
 		return
 	}
     // Parse user data from request body
-    var user model.User
+    var user model.UserUpdateInput
     if err := ctx.ShouldBindJSON(&user); err != nil {
         ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid request body"})
         return
@@ -135,8 +149,8 @@ func (u *userHandlerImpl) EditUser(ctx *gin.Context) {
 //		@Tags			users
 //		@Accept			json
 //		@Produce		json
-//	 	@Param 			Authorization header string true "bearer token"
-//		@Param			id	path		int	true	"User ID"
+// 		@Security Bearer
+// 		@Param 			id path int true "User ID"
 //		@Success		200	{object}	model.User
 //		@Failure		400	{object}	pkg.ErrorResponse
 //		@Failure		404	{object}	pkg.ErrorResponse
@@ -180,7 +194,17 @@ func (u *userHandlerImpl) DeleteUsersById(ctx *gin.Context) {
 		"message": "Your account has been successfully deleted",
 	})
 }
-
+// UserSignUp godoc
+// @Summary User register
+// @Description Register a new user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body model.UserSignUp true "User sign-up details"
+// @Success 201 {object} model.User "user"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /users/register [post]
 func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
 	// binding sign-up body
 	userSignUp := model.UserSignUp{}
@@ -201,7 +225,17 @@ func (u *userHandlerImpl) UserSignUp(ctx *gin.Context) {
 		"user":  user,
 	})
 }
-
+// UserLogin godoc
+// @Summary User login
+// @Description Log in a user with email and password
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param userLogin body model.UserLogin true "User login details"
+// @Success 200 {string} token "token"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /users/login [post]
 func (u *userHandlerImpl) UserLogin(ctx *gin.Context) {
     var userLogin model.UserLogin
 

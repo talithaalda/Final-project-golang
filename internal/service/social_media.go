@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"final_project/internal/model"
 	"final_project/internal/repository"
@@ -10,8 +11,8 @@ import (
 type SocialMediaService interface {
 	GetSocialMediaByID(ctx context.Context, id uint64) (model.SocialMedia, error)
 	DeleteSocialMediaByID(ctx context.Context, id uint64) (model.UpdateSocialMedia, error)
-	CreateSocialMedia(ctx context.Context, socialMedia model.CreateSocialMedia, user uint64) (model.CreateSocialMedia, error)
-	UpdateSocialMedia(ctx context.Context, id uint64, socialMedia model.UpdateSocialMedia) (model.UpdateSocialMedia, error)
+	CreateSocialMedia(ctx context.Context, socialMedia model.InputSocialMedia, user uint64) (model.CreateSocialMedia, error)
+	UpdateSocialMedia(ctx context.Context, id uint64, socialMedia model.InputSocialMedia) (model.UpdateSocialMedia, error)
 	GetSocialMediasByUserID(ctx context.Context, userID uint64) ([]model.SocialMedia, error)
 	GetSocialMediaByID1(ctx context.Context, id uint64) (model.UpdateSocialMedia, error)
 	GetSocialMedias(ctx context.Context) ([]model.SocialMedia, error)
@@ -95,11 +96,12 @@ func (c *socialMediaServiceImpl) DeleteSocialMediaByID(ctx context.Context, id u
 	return socialMedia, err
 }
 
-func (c *socialMediaServiceImpl) CreateSocialMedia(ctx context.Context, CreateSocialMedia model.CreateSocialMedia, userID uint64) (model.CreateSocialMedia, error) {
+func (c *socialMediaServiceImpl) CreateSocialMedia(ctx context.Context, CreateSocialMedia model.InputSocialMedia, userID uint64) (model.CreateSocialMedia, error) {
 	socialMedia := model.CreateSocialMedia{
 		Name: CreateSocialMedia.Name,
 		SocialMediaURL : CreateSocialMedia.SocialMediaURL ,
 		UserID:  userID,
+		CreatedAt: time.Now(),
 	}
 	createdSocialMedia, err := c.repoSocialMedia.CreateSocialMedia(ctx, socialMedia)
 	if err != nil {
@@ -108,8 +110,14 @@ func (c *socialMediaServiceImpl) CreateSocialMedia(ctx context.Context, CreateSo
 	return createdSocialMedia, nil
 }
 
-func (c *socialMediaServiceImpl) UpdateSocialMedia(ctx context.Context, id uint64, socialMedia model.UpdateSocialMedia) (model.UpdateSocialMedia, error) {
-	updatedSocialMedia, err := c.repoSocialMedia.UpdateSocialMedia(ctx, id, socialMedia)
+func (c *socialMediaServiceImpl) UpdateSocialMedia(ctx context.Context, id uint64, socialMedia model.InputSocialMedia) (model.UpdateSocialMedia, error) {
+	updateSocialMedia := model.UpdateSocialMedia{
+		Name: socialMedia.Name,
+		SocialMediaURL : socialMedia.SocialMediaURL ,
+		UpdatedAt: time.Now(),
+	}
+	
+	updatedSocialMedia, err := c.repoSocialMedia.UpdateSocialMedia(ctx, id, updateSocialMedia)
 	if err != nil {
 		return model.UpdateSocialMedia{}, err
 	}

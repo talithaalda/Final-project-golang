@@ -34,6 +34,11 @@ type CreateComment struct {
 	PhotoID   uint64    `json:"photo_id" binding:"required"`
 	CreatedAt time.Time `json:"created_at"`
 }
+type CreateCommentInput struct {
+	Message   string    `json:"message" binding:"required"`
+	PhotoID   uint64    `json:"photo_id" binding:"required"`
+}
+
 type GetCommentByID struct {
 	ID        uint64    `json:"id" `
 	Message   string    `json:"message" binding:"required"`
@@ -61,4 +66,7 @@ type UpdateComment struct {
 	UserID    uint64    `json:"user_id"`
 	PhotoID   uint64    `json:"photo_id" binding:"required"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+type UpdateCommentInput struct {
+	Message   string    `json:"message" binding:"required"`
 }

@@ -28,7 +28,20 @@ type commentHandlerImpl struct {
 func NewCommentHandler(commentService service.CommentService) CommentHandler {
     return &commentHandlerImpl{commentService: commentService}
 }
-
+// GetCommentsByPhotoID retrieves comments by photo ID.
+// @Summary Retrieve comments by photo ID
+// @Description Retrieve a list of comments based on the given photo ID
+// @Tags comments
+// @Accept json
+// @security Bearer
+// @Produce json
+// @Param photo_id query int true "Photo ID"
+// @Success 200 {array} model.Comment "comments"
+// @Success 200 {object} pkg.ErrorResponse "No comment found"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 404 {object} pkg.ErrorResponse "Comment not found"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /comments [get]
 func (s *commentHandlerImpl) GetCommentsByPhotoID(ctx *gin.Context) {
     // Ambil nilai photo_id dari query string
     photoIDStr := ctx.Query("photo_id")
@@ -62,14 +75,25 @@ func (s *commentHandlerImpl) GetCommentsByPhotoID(ctx *gin.Context) {
     // Kirim respons dengan daftar comment yang ditemukan
     ctx.JSON(http.StatusOK, comments)
 }
-
+// CreateComment creates a new comment.
+// @Summary Create a new comment
+// @Description Create a new comment for a photo
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param photo_id body model.CreateCommentInput true "Comment data"
+// @Success 201 {object} model.Comment "comment"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /comments [post]
 func (c *commentHandlerImpl) CreateComment(ctx *gin.Context) {
-    comment := model.CreateComment{}
+    comment := model.CreateCommentInput{}
     if err := ctx.ShouldBindJSON(&comment); err != nil {
         ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid request body"})
         return
     }
-
+	
     createdComment, err := c.commentService.CreateComment(ctx, comment, uint64(ctx.MustGet(middleware.CLAIM_USER_ID).(float64)))
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
@@ -78,7 +102,20 @@ func (c *commentHandlerImpl) CreateComment(ctx *gin.Context) {
 
     ctx.JSON(http.StatusCreated, createdComment)
 }
-
+// UpdateComment updates an existing comment.
+// @Summary Update an existing comment
+// @Description Update an existing comment
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Comment ID"
+// @Param comment body model.UpdateCommentInput true "Comment data"
+// @Success 200 {object} model.Comment "updatedComment"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 401 {object} pkg.ErrorResponse "Unauthorized"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /comments/{id} [put]
 func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
     id, err := strconv.Atoi(ctx.Param("id"))
 	if id == 0 || err != nil {
@@ -117,9 +154,11 @@ func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
         ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Message: "Invalid request body"})
         return
     }
-
+	inputComment := model.UpdateCommentInput{
+		Message: comment.Message,
+	}
     // Call service to edit photo data
-    updatedComment, err := c.commentService.UpdateComment(ctx, uint64(id), comment)
+    updatedComment, err := c.commentService.UpdateComment(ctx, uint64(id), inputComment)
     if err != nil {
         ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Message: err.Error()})
         return
@@ -128,7 +167,19 @@ func (c *commentHandlerImpl) UpdateComment(ctx *gin.Context) {
     // Return updated photo data
     ctx.JSON(http.StatusOK, updatedComment)
 }
-
+// DeleteComment deletes an existing comment.
+// @Summary Delete an existing comment
+// @Description Delete an existing comment
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param id path int true "Comment ID"
+// @Success 200 {object} model.Comment "comment"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 401 {object} pkg.ErrorResponse "Unauthorized"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /comments/{id} [delete]
 func (c *commentHandlerImpl) DeleteComment(ctx *gin.Context) {
     id, err := strconv.Atoi(ctx.Param("id"))
 	if id == 0 || err != nil {
@@ -172,6 +223,19 @@ func (c *commentHandlerImpl) DeleteComment(ctx *gin.Context) {
 		"message": "Your comment has been successfully deleted",
 	})
 }
+// GetCommentByID retrieves a comment by its ID.
+// @Summary Retrieve comment by ID
+// @Description Retrieve a comment by its ID
+// @Tags comments
+// @Accept json
+// @security Bearer
+// @Produce json
+// @Param id path int true "Comment ID"
+// @Success 200 {object} model.Comment "comment"
+// @Failure 400 {object} pkg.ErrorResponse "Bad request"
+// @Failure 404 {object} pkg.ErrorResponse "Comment not found"
+// @Failure 500 {object} pkg.ErrorResponse "Internal server error"
+// @Router /comments/{id} [get]
 func (c *commentHandlerImpl) GetCommentByID(ctx *gin.Context) {
 	// get photo ID from path parameter
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 64)
@@ -192,6 +256,7 @@ func (c *commentHandlerImpl) GetCommentByID(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, comment)
 }
+
 func (c *commentHandlerImpl) GetComments(ctx *gin.Context) {
 	comments, err := c.commentService.GetComments(ctx)
 	if err != nil {

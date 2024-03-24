@@ -17,7 +17,7 @@ type UserService interface {
 	GetUsers(ctx context.Context) ([]model.User, error)
 	GetUsersById(ctx context.Context, id uint64) (model.User, error)
 	DeleteUsersById(ctx context.Context, id uint64) (model.User, error)
-	EditUser(ctx context.Context, id uint64, user model.User) (model.User, error)
+	EditUser(ctx context.Context, id uint64, user model.UserUpdateInput) (model.UserUpdate, error)
 	// activity
 	SignUp(ctx context.Context, userSignUp model.UserSignUp) (*model.PrintUser, error)
 
@@ -50,7 +50,6 @@ func (u *userServiceImpl) GetUsersById(ctx context.Context, id uint64) (model.Us
 	return user, err
 }
 
-
 func (u *userServiceImpl) DeleteUsersById(ctx context.Context, id uint64) (model.User, error) {
 	user, err := u.repo.GetUsersByID(ctx, id)
 	if err != nil {
@@ -71,17 +70,51 @@ func (u *userServiceImpl) DeleteUsersById(ctx context.Context, id uint64) (model
 }
 
 
-func (u *userServiceImpl) EditUser(ctx context.Context, id uint64, user model.User) (model.User, error) {
-    // Perform validation or additional checks here if necessary
+func (u *userServiceImpl) EditUser(ctx context.Context, id uint64, user model.UserUpdateInput) (model.UserUpdate, error) {
+	userModel, err := u.repo.GetUsersByID(ctx, id)
+	if err != nil {
+		return model.UserUpdate{}, err
+	}
+	// Check if email is not empty and user with this email already exists
+	if user.Email != "" && user.Email != userModel.Email {
+		userEmail, _ := u.repo.GetUserByEmail(ctx, user.Email)
+		if userEmail.ID != 0 {
+			return model.UserUpdate{}, errors.New("email already exists")
+		}
 
-    // Call repository to edit user
-    updatedUser, err := u.repo.EditUser(ctx, id, user)
-    if err != nil {
-        return model.User{}, err
-    }
-    return updatedUser, nil
+		// Check if email is valid
+		if !helper.IsValidEmail(user.Email) {
+			return model.UserUpdate{}, errors.New("invalid email format")
+		}
+
+		// If email is being updated, update user email
+		userModel.Email = user.Email
+	}
+	// Check if username is not empty and user with this username already exists
+	if user.Username != "" && user.Username != userModel.Username {
+		userUsername, _ := u.repo.GetUserByUsername(ctx, user.Username)
+		if userUsername.ID != 0 {
+			return model.UserUpdate{}, errors.New("username already exists")
+		}
+
+		// If username is being updated, update user username
+		userModel.Username = user.Username
+	}
+	userModel.UpdatedAt = time.Now()
+	// Call repository to edit user
+	updatedUser, err := u.repo.EditUser(ctx, id, userModel)
+	if err != nil {
+		return model.UserUpdate{}, err
+	}
+	userUpdate := model.UserUpdate{
+		ID:       updatedUser.ID,
+		Username: updatedUser.Username,
+		Email:    updatedUser.Email,
+		Dob:      updatedUser.Dob.String(),
+		UpdatedAt: updatedUser.UpdatedAt,
+	}
+	return userUpdate, nil
 }
-
 func (u *userServiceImpl) SignUp(ctx context.Context, userSignUp model.UserSignUp) (*model.PrintUser, error) {
 	dob, err := time.Parse("2006-01-02", userSignUp.Dob)
 	if err != nil {

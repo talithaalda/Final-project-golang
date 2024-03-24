@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"final_project/internal/model"
 	"final_project/internal/repository"
@@ -10,8 +12,8 @@ import (
 type CommentService interface {
 	GetCommentByID(ctx context.Context, id uint64) (model.GetCommentByID, error)
 	DeleteCommentByID(ctx context.Context, id uint64) (model.UpdateComment, error)
-	CreateComment(ctx context.Context, comment model.CreateComment, user uint64) (model.CreateComment, error)
-	UpdateComment(ctx context.Context, id uint64, comment model.UpdateComment) (model.UpdateComment, error)
+	CreateComment(ctx context.Context, comment model.CreateCommentInput, user uint64) (model.CreateComment, error)
+	UpdateComment(ctx context.Context, id uint64, comment model.UpdateCommentInput) (model.UpdateComment, error)
 	GetCommentsByPhotoID(ctx context.Context, photoID uint64) ([]model.Comment, error)
 	GetCommentByID1(ctx context.Context, id uint64) (model.UpdateComment, error)
 	GetComments(ctx context.Context) ([]model.GetCommentByID, error)
@@ -119,11 +121,16 @@ func (c *commentServiceImpl) DeleteCommentByID(ctx context.Context, id uint64) (
 	return comment, err
 }
 
-func (c *commentServiceImpl) CreateComment(ctx context.Context, CreateComment model.CreateComment, userID uint64) (model.CreateComment, error) {
+func (c *commentServiceImpl) CreateComment(ctx context.Context, CreateComment model.CreateCommentInput, userID uint64) (model.CreateComment, error) {
 	comment := model.CreateComment{
 		Message: CreateComment.Message,
 		PhotoID: CreateComment.PhotoID,
 		UserID:  userID,
+		CreatedAt: time.Now(),
+	}
+	commentPhotoID, _ := c.repoComment.GetCommentsByPhotoID(ctx, comment.PhotoID)
+	if len(commentPhotoID) == 0 {
+		return model.CreateComment{}, errors.New("photo not found")
 	}
 	createdComment, err := c.repoComment.CreateComment(ctx, comment)
 	if err != nil {
@@ -132,8 +139,13 @@ func (c *commentServiceImpl) CreateComment(ctx context.Context, CreateComment mo
 	return createdComment, nil
 }
 
-func (c *commentServiceImpl) UpdateComment(ctx context.Context, id uint64, comment model.UpdateComment) (model.UpdateComment, error) {
-	updatedComment, err := c.repoComment.UpdateComment(ctx, id, comment)
+func (c *commentServiceImpl) UpdateComment(ctx context.Context, id uint64, comment model.UpdateCommentInput) (model.UpdateComment, error) {
+	updateComment := model.UpdateComment{
+		Message: comment.Message,
+		UpdatedAt: time.Now(),
+
+	}
+	updatedComment, err := c.repoComment.UpdateComment(ctx, id, updateComment)
 	if err != nil {
 		return model.UpdateComment{}, err
 	}

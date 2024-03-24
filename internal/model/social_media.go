@@ -28,9 +28,13 @@ type CreateSocialMedia struct {
 	CreatedAt time.Time      `json:"created_at"`
 }
 type UpdateSocialMedia struct {
-	ID        uint64         `json:"id" gorm:"primaryKey"`
-	Name      string         `json:"name" binding:"required"`
+	ID        			  uint64         `json:"id" gorm:"primaryKey"`
+	Name      			  string         `json:"name" binding:"required"`
 	SocialMediaURL        string         `json:"social_media_url " binding:"required"`
-	UserID    uint64         `json:"user_id"`
-	UpdatedAt time.Time  	 `json:"updated_at"`
+	UserID    			  uint64         `json:"user_id"`
+	UpdatedAt 			  time.Time  	 `json:"updated_at"`
+}
+type InputSocialMedia struct {
+	Name      		string         `json:"name" binding:"required"`
+	SocialMediaURL  string         `json:"social_media_url" binding:"required"`
 }

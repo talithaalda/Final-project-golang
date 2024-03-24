@@ -17,7 +17,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	_ "final_project/cmd/docs"
+	_ "final_project/docs"
 
 	"github.com/joho/godotenv"
 	swaggerFiles "github.com/swaggo/files"
@@ -26,7 +26,7 @@ import (
 
 // @title			GO DTS USER API DUCUMENTATION
 // @version		2.0
-// @description	golong kominfo 006 api documentation
+// @description	Final Project My Gram
 // @termsOfService	http://swagger.io/terms/
 // @contact.name	API Support
 // @contact.url	http://www.swagger.io/support
@@ -36,6 +36,9 @@ import (
 // @host			localhost:3000
 // @BasePath		/
 // @schemes		http
+// @SecurityDefinitions.apiKey Bearer
+// @in header
+// @name Authorization
 func main() {
 	// requirement technical:
 	// [x] middleware untuk recover ketika panic
