@@ -128,8 +128,8 @@ func (c *commentServiceImpl) CreateComment(ctx context.Context, CreateComment mo
 		UserID:  userID,
 		CreatedAt: time.Now(),
 	}
-	commentPhotoID, _ := c.repoComment.GetCommentsByPhotoID(ctx, comment.PhotoID)
-	if len(commentPhotoID) == 0 {
+	commentPhotoID, _ := c.repoPhoto.GetPhotoByID(ctx, comment.PhotoID)
+	if commentPhotoID.ID == 0 {
 		return model.CreateComment{}, errors.New("photo not found")
 	}
 	createdComment, err := c.repoComment.CreateComment(ctx, comment)

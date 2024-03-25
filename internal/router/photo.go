@@ -21,20 +21,11 @@ func NewPhotoRouter(v *gin.RouterGroup, handler handler.PhotoHandler) PhotoRoute
 }
 
 func (p *photoRouterImpl) Mount() {
-	// Endpoint untuk menambahkan middleware autentikasi ke setiap permintaan foto
 	p.v.Use(middleware.CheckAuthBearer)
-
-	// Endpoint untuk menampilkan daftar foto
 	// p.v.GET("", p.handler.GetPhotos)
-
-	// Endpoint untuk menampilkan detail foto berdasarkan ID
 	p.v.GET("/:id", p.handler.GetPhotoByID)
 	p.v.GET("", p.handler.GetPhotoByUserID)
-
-	// Endpoint untuk menghapus foto berdasarkan ID
 	p.v.DELETE("/:id", p.handler.DeletePhotoByID)
 	p.v.PUT("/:id", p.handler.EditPhoto)
-
-	// Endpoint untuk membuat foto baru
 	p.v.POST("", p.handler.CreatePhoto)
 }
